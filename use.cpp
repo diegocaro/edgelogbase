@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
                 return 1;
         }
 
-	buffer = (uint *)malloc(sizeof(uint)*BUFFER);
+	buffer = new uint[BUFFER];
         
 	printf("Reading file: '%s'\n", argv[1]);
 
@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
 		print_arraysort(buffer);
                 printf("Write your query: ");
 	}
-	return 0;
+
        
 /*
 	uint a,b,c;
@@ -128,7 +128,7 @@ int main(int argc, char *argv[]) {
 			}
 		}
 */
-	free(buffer);
+	delete [] buffer;
 	return 0;
 }
 
