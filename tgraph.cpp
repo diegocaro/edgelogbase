@@ -334,7 +334,7 @@ int TGraph::edge_point(uint v, uint u, uint t){
         
 	uint c=0;
         int ok = 0;
-        if (p == NULL) { printf("not found\n");  return ok;}
+        if (p == NULL) { return ok;}
         else {
 
                 uint j = (uint)(p - edgesp);
