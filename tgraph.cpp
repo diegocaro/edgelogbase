@@ -302,6 +302,21 @@ void TGraph::direct_strong(uint v, uint tstart, uint tend, uint *res)  {
 
 
 uint TGraph::snapshot(uint t){
+  /* 
+  // This code fails... I dont know why :(
+  uint *buffer = new uint [BUFFER];
+  
+  uint edges=0;
+  for(uint v=0; v < nodes; v++) {
+          direct_point(v, t, buffer);
+          edges += *buffer;
+  }
+  
+  delete [] buffer;
+  
+  return edges;
+  */
+  
         uint *res = new uint [BUFFER];
         
         uint *timep = new uint[BUFFER];
