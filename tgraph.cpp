@@ -302,15 +302,55 @@ void TGraph::direct_strong(uint v, uint tstart, uint tend, uint *res)  {
 
 
 uint TGraph::snapshot(uint t){
-        uint *buffer = new uint [BUFFER];
+        uint *res = new uint [BUFFER];
+        
+        uint *timep = new uint[BUFFER];
+	uint *changesp = new uint[BUFFER];
+	uint *edgesp = new uint[BUFFER];
+	uint *edgetimesizep = new uint[BUFFER];
         
         uint edges=0;
         for(uint v=0; v < nodes; v++) {
-                direct_point(v, t, buffer);
-                edges += *buffer;
+
+          if (v>=nodes || tgraph[v].neighbors == 0) continue;
+
+
+
+  	cc->Decompress(tgraph[v].cchanges, changesp, tgraph[v].neighbors);
+  	cc->Decompress(tgraph[v].cedges, edgesp, tgraph[v].neighbors);
+  	decodediff(edgesp, tgraph[v].neighbors);
+	
+  	cc->Decompress(tgraph[v].cedgetimesize, edgetimesizep, tgraph[v].neighbors);
+	
+          uint i=0;
+        
+          for(uint j=0; j < tgraph[v].neighbors; j++) {
+                  decodetime(v, j, edgetimesizep, changesp, timep);
+                  uint c=0;
+                  for (uint k=0; k < changesp[j]; k++) {
+                          if (timep[k] <= t) {
+                                  c++;
+                          }
+                  }
+                
+                  if (c%2 == 1) res[++i] = edgesp[j];
+          }
+        
+          *res = i;
+
+
+
+
+
+
+                edges += *res;
         }
         
-        delete [] buffer;
+        delete [] timep;
+	delete [] changesp;
+	delete [] edgesp;
+	delete [] edgetimesizep;
+        delete [] res;
         
         return edges;
 }
