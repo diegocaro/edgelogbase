@@ -1,5 +1,7 @@
 #include <cstdio>
 #include <fstream>
+#include <cstdlib>
+#include <cstring>
 #include "tgraph.h"
 #include "tgraphreader.h"
 #include "debug.h"
