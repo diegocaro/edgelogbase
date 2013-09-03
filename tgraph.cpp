@@ -75,7 +75,8 @@ TGraph* TGraph::load(ifstream &in) {
                 tg->tgraph[i].cedgetimesize = cds_utils::loadValue<uint>(in, tg->tgraph[i].csize_cedgetimesize);
 		}
         }
-        
+	
+        tg->set_policy(tg->cp);
         tg->loadpolicy();
         
         return tg;
@@ -470,7 +471,7 @@ int TGraph::edge_next(uint v, uint u, uint t){
                 if (c%2 == 1) tnext = t;
                 else tnext = timep[r];
 		
-		if (tnext < t) tnext = -1;
+		if (tnext < (int)t) tnext = -1;
         }
         
         delete [] timep;
