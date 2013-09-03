@@ -206,7 +206,7 @@ void TGraph::decodetime(uint u, uint v, uint *edgetimesize, uint *changes, uint 
 void TGraph::direct_point(uint v, uint t, uint *res)  {
         if (v>=nodes || tgraph[v].neighbors == 0) return;
 
-  uint *timep = new uint[BLOCKSIZE*tgraph[v].cedgetimesize];
+        uint *timep = new uint[BLOCKSIZE*tgraph[v].csize_cedgetimesize];
 	uint *changesp = new uint[BLOCKSIZE*tgraph[v].neighbors];
 	uint *edgesp = new uint[BLOCKSIZE*tgraph[v].neighbors];
 	uint *edgetimesizep = new uint[BLOCKSIZE*tgraph[v].neighbors];
@@ -242,7 +242,7 @@ void TGraph::direct_point(uint v, uint t, uint *res)  {
 void TGraph::direct_interval(uint v, uint tstart, uint tend, uint semantic, uint *res)  {
         if (v>=nodes || tgraph[v].neighbors == 0) return;
 
-        uint *timep = new uint[BLOCKSIZE*tgraph[v].cedgetimesize];
+        uint *timep = new uint[BLOCKSIZE*tgraph[v].csize_cedgetimesize];
 	uint *changesp = new uint[BLOCKSIZE*tgraph[v].neighbors];
 	uint *edgesp = new uint[BLOCKSIZE*tgraph[v].neighbors];
 	uint *edgetimesizep = new uint[BLOCKSIZE*tgraph[v].neighbors];
@@ -317,7 +317,7 @@ uint TGraph::snapshot(uint t){
 
 int TGraph::edge_point(uint v, uint u, uint t){
 	 if (v>=nodes || tgraph[v].neighbors == 0) return 0;
-        uint *timep = new uint[BLOCKSIZE*tgraph[v].cedgetimesize];
+        uint *timep = new uint[BLOCKSIZE*tgraph[v].csize_cedgetimesize];
 	uint *changesp = new uint[BLOCKSIZE*tgraph[v].neighbors];
 	uint *edgesp = new uint[BLOCKSIZE*tgraph[v].neighbors];
 	uint *edgetimesizep = new uint[BLOCKSIZE*tgraph[v].neighbors];
@@ -367,7 +367,7 @@ int TGraph::edge_point(uint v, uint u, uint t){
 
 int TGraph::edge_interval(uint v, uint u, uint tstart, uint tend, uint semantic){
 	if (v>=nodes || tgraph[v].neighbors == 0) return 0;
-	uint *timep = new uint[BLOCKSIZE*tgraph[v].cedgetimesize];
+	uint *timep = new uint[BLOCKSIZE*tgraph[v].csize_cedgetimesize];
 	uint *changesp = new uint[BLOCKSIZE*tgraph[v].neighbors];
 	uint *edgesp = new uint[BLOCKSIZE*tgraph[v].neighbors];
 	uint *edgetimesizep = new uint[BLOCKSIZE*tgraph[v].neighbors];
@@ -434,7 +434,7 @@ int TGraph::edge_weak(uint u, uint v, uint tstart, uint tend){
 
 int TGraph::edge_next(uint v, uint u, uint t){
 	if (v>=nodes || tgraph[v].neighbors == 0) return -1;
-	uint *timep = new uint[BLOCKSIZE*tgraph[v].cedgetimesize];
+	uint *timep = new uint[BLOCKSIZE*tgraph[v].csize_cedgetimesize];
 	uint *changesp = new uint[BLOCKSIZE*tgraph[v].neighbors];
 	uint *edgesp = new uint[BLOCKSIZE*tgraph[v].neighbors];
 	uint *edgetimesizep = new uint[BLOCKSIZE*tgraph[v].neighbors];
