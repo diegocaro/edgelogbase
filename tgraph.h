@@ -30,7 +30,7 @@ class TGraphReader;
 class TGraphEventList {
 public:
 
-        uint neighbors; //list of edges
+        uint neighbors; //number of edges
 	
 	// DELTA ENCODE
 	uint *cedges; //compressed list of edges
