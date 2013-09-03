@@ -9,21 +9,27 @@
 #define BLOCKSIZE 128
 #define BUFFER 67108864 //256 megabytes
 
-#define CODINGPOLICY "rice"
+#define CODINGPOLICY "pfor:32:s16:32"
 
 class TGraphEventList {
 public:
 
-        //size of each neighbor
-        uint size_neighbors; //number of neighbors
-        uint *neighbors; //list of edges
-        uint *csize_neighbors; // compressed size of each neighbor
-        
-        uint *changes; //changes for each neighbor
-        
-        //array of compressed time points
-        uint csize_time;
-        uint *ctime;
+        uint neighbors; //list of edges
+	
+	// DELTA ENCODE
+	uint *cedges; //compressed list of edges
+	uint csize_cedges;
+	
+	uint *cchanges; //compressed number of changes by edge
+	uint csize_cchanges;
+	
+	// DELTA ENCODE
+	uint *ctime;  //compressed timepoints
+	uint csize_ctime;
+	
+	uint *cedgetimesize; //size of each compressed list of time edges
+	uint csize_cedgetimesize;
+	
 };
 
 class TGraph {
@@ -48,7 +54,7 @@ public:
         
         void create(TGraphReader &tgr);
         
-        void decodetime(uint u, uint v, uint *res);
+        void decodetime(uint u, uint v, uint *edgetimesize, uint *changes, uint *res);
         int isEdgeActive(uint v, uint j, uint t, uint *timep);
         
         uint snapshot(uint t);
