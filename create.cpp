@@ -4,6 +4,7 @@
 #include <cstring>
 #include <vector>
 #include <map>
+#include <set>
 #include <assert.h>
 #include "tgraph.h"
 #include "tgraphreader.h"
@@ -67,12 +68,15 @@ TGraphReader* readcontacts() {
 	uint u,v,a,b;
 
 	vector < map<uint, vector<uint> > > btable;
-
+	vector < set<uint> > revgraph; //edges are in the form v,u
 	scanf("%u %u %u %u", &nodes, &edges, &lifetime, &contacts);
 
 	for(uint i = 0; i < nodes; i++) {
 		map<uint, vector<uint> > t;
 		btable.push_back(t);
+
+		set<uint> s;
+		revgraph.push_back(s);
 	}
 
 	uint c_read = 0;
@@ -81,6 +85,10 @@ TGraphReader* readcontacts() {
 		if(c_read%500000==0) fprintf(stderr, "Processing %.1f%%\r", (float)c_read/contacts*100);
 
 		btable[u][a].push_back(v);
+
+		//reverse node
+		revgraph[v].insert(u);
+
 		if (b == lifetime-1) continue;
 
 		btable[u][b].push_back(v);
@@ -93,18 +101,25 @@ TGraphReader* readcontacts() {
 
 
 	map<uint, vector<uint> >::iterator it;
-
-		for(uint i = 0; i < nodes; i++) {
-			for( it = btable[i].begin(); it != btable[i].end(); ++it) {
-						for(uint j = 0; j < (it->second).size(); j++ ) {
-							tgraphreader->addChange(i, (it->second).at(j), it->first);
-						}
-
-					}
+	// temporal graph
+	for(uint i = 0; i < nodes; i++) {
+		for( it = btable[i].begin(); it != btable[i].end(); ++it) {
+			for(uint j = 0; j < (it->second).size(); j++ ) {
+				tgraphreader->addChange(i, (it->second).at(j), it->first);
+			}
 		}
+	}
+
+	//reverse neighbors
+	set<uint>::iterator its;
+	for(uint i = 0; i < nodes; i++) {
+		for( its = revgraph[i].begin(); its != revgraph[i].end(); ++its) {
+			tgraphreader->addReverseEdge(i, *its);
+		}
+	}
 
 
-		return tgraphreader;
+	return tgraphreader;
 }
 int main(int argc, char *argv[]) {
         struct opts opts;

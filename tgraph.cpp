@@ -8,6 +8,9 @@
 #include "arraysort.h"
 #include <cstdlib>
 #include <cstring>
+
+
+
 using namespace std;
 
 
@@ -50,6 +53,14 @@ void TGraph::save(ofstream &out) {
                 cds_utils::saveValue<uint>(out, tgraph[i].cedgetimesize, tgraph[i].csize_cedgetimesize);
 		}
         }
+
+        //save reverse graph
+        cds_utils::saveValue<TGraphReverse>(out, reverse, nodes);
+        for(uint i=0; i < nodes; i++) {
+        	if (reverse[i].size > 0) {
+        		cds_utils::saveValue<uint>(out, reverse[i].clist, reverse[i].csize);
+        	}
+        }
 }
 
 TGraph* TGraph::load(ifstream &in) {
@@ -76,6 +87,15 @@ TGraph* TGraph::load(ifstream &in) {
 		}
         }
 	
+        //read reverse graph
+        tg->reverse = cds_utils::loadValue<TGraphReverse>(in, tg->nodes);
+        for(uint i=0; i < tg->nodes; i++) {
+                if (tg->reverse[i].size > 0) {
+                	tg->reverse[i].clist =  cds_utils::loadValue<uint>(in, tg->reverse[i].csize);
+                }
+        }
+
+
         tg->set_policy(tg->cp);
         tg->loadpolicy();
         
@@ -188,6 +208,39 @@ void TGraph::create(TGraphReader &tgr) {
         }
         fprintf(stderr, "\n");
         
+
+
+        // Creating reverse structure
+        reverse = new TGraphReverse[nodes];
+        uint size;
+        for(uint i=0; i < nodes; i++) {
+                if (i%1000==0) fprintf(stderr, "Compressing reverse graph: %0.2f%%\r", (float)i*100/nodes);
+
+                reverse[i].size = 0;
+                reverse[i].csize = 0;
+                reverse[i].clist = NULL;
+
+                size = tgr.revgraph[i].neighbors.size();
+
+                if ( size == 0 ) {
+                	continue;
+                }
+
+                encodediff(tgr.revgraph[i].neighbors);
+                csize = cc->Compress(tgr.revgraph[i].neighbors.data(), ccedgebuffer, size);
+
+                reverse[i].size = size;
+                reverse[i].csize = csize;
+                reverse[i].clist = new uint[csize];
+                memcpy(reverse[i].clist, ccedgebuffer, csize * sizeof(uint));
+
+                tgr.revgraph[i].neighbors.clear();
+
+        }
+
+
+
+
         delete [] ccedgebuffer;
 	delete [] cctimebuffer;
 }
@@ -202,6 +255,12 @@ void TGraph::decodetime(uint u, uint v, uint *edgetimesize, uint *changes, uint 
         decodediff(res, changes[v]);
 }
 
+void TGraph::decodereverse(uint v, uint *res) {
+        //if (tgraph[v].changes == 0) return;
+
+        cc->Decompress(reverse[v].clist, res, reverse[v].size);
+        decodediff(res, reverse[v].size);
+}
 
 void TGraph::direct_point(uint v, uint t, uint *res)  {
         if (v>=nodes || tgraph[v].neighbors == 0) return;
@@ -533,4 +592,61 @@ int TGraph::edge_next(uint v, uint u, uint t){
         
         return tnext;
 
+}
+
+void TGraph::reverse_point(uint v, uint t, uint *res) {
+	if (v>=nodes || reverse[v].size == 0) return;
+
+	uint *nodep = new uint[reverse[v].size+100];
+
+	decodereverse(v, nodep);
+
+        uint i=0;
+
+        for(uint j=0; j < reverse[v].size; j++) {
+        	if (edge_point(nodep[j], v, t)) {
+        		res[++i] = nodep[j];
+        	}
+
+        }
+        *res = i;
+        delete [] nodep;
+}
+
+void TGraph::reverse_weak(uint v, uint tstart, uint tend, uint *res) {
+	if (v>=nodes || reverse[v].size == 0) return;
+
+	uint *nodep = new uint[reverse[v].size+100];
+
+	decodereverse(v, nodep);
+
+        uint i=0;
+
+        for(uint j=0; j < reverse[v].size; j++) {
+        	if (edge_weak(nodep[j], v, tstart, tend)) {
+        		res[++i] = nodep[j];
+        	}
+
+        }
+        *res = i;
+        delete [] nodep;
+}
+
+void TGraph::reverse_strong(uint v, uint tstart, uint tend, uint *res) {
+	if (v>=nodes || reverse[v].size == 0) return;
+
+	uint *nodep = new uint[reverse[v].size+100];
+
+	decodereverse(v, nodep);
+
+        uint i=0;
+
+        for(uint j=0; j < reverse[v].size; j++) {
+        	if (edge_strong(nodep[j], v, tstart, tend)) {
+        		res[++i] = nodep[j];
+        	}
+
+        }
+        *res = i;
+        delete [] nodep;
 }

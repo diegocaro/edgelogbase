@@ -17,6 +17,11 @@ public:
 };
 
 
+class TGraphReaderReverseList {
+public:
+	vector <uint> neighbors;
+};
+
 
 class TGraphReader {
 public:
@@ -26,7 +31,7 @@ public:
         uint maxtime;
         
         TGraphReaderEventList* tgraph;
-
+        TGraphReaderReverseList *revgraph;
 
         TGraphReader(uint n, uint e, uint c, uint t) {
                 nodes = n;
@@ -36,10 +41,15 @@ public:
                 
                 
                 tgraph = new TGraphReaderEventList[nodes];
+                revgraph = new TGraphReaderReverseList[nodes];
         }
         
         void addChange(uint u, uint v, uint t) {
                 tgraph[u].addEvent(v,t);
+        }
+
+        void addReverseEdge(uint v, uint u) {
+        	revgraph[v].neighbors.push_back(u);
         }
 
 };

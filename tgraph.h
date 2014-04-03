@@ -24,6 +24,12 @@ enum CP_FORMAT {
 
 class TGraphReader;
 
+class TGraphReverse {
+public:
+	uint size; //out degree, number of elements
+	uint csize; //compressed size
+	uint *clist; //pointer to compressed list
+};
 
 
 
@@ -58,6 +64,9 @@ public:
 	enum CP_FORMAT cp;
 	
         TGraphEventList* tgraph;
+
+        TGraphReverse *reverse;
+
         CodingPolicy *cc;
         
 	void set_policy(enum CP_FORMAT c) {
@@ -88,6 +97,10 @@ public:
         void create(TGraphReader &tgr);
         
         void decodetime(uint u, uint v, uint *edgetimesize, uint *changes, uint *res);
+
+        void decodereverse(uint v, uint *res);
+
+
         int isEdgeActive(uint v, uint j, uint t, uint *timep);
         
         uint snapshot(uint t);
@@ -106,11 +119,11 @@ public:
 	void direct_interval(uint node, uint tstart, uint tend, uint semantic, uint *res);
 	
         
-	/*
-        void reverse_point(uint node, uint t, uint *res) const;
-	void reverse_weak(uint node, uint tstart, uint tend, uint *res) const;
-	void reverse_strong(uint node, uint tstart, uint tend, uint *res) const;
-        */
+
+        void reverse_point(uint node, uint t, uint *res);
+	void reverse_weak(uint node, uint tstart, uint tend, uint *res);
+	void reverse_strong(uint node, uint tstart, uint tend, uint *res);
+
 };
 
 
