@@ -280,6 +280,7 @@ void TGraph::direct_point(uint v, uint t, uint *res)  {
         
         for(uint j=0; j < tgraph[v].neighbors; j++) {
                 decodetime(v, j, edgetimesizep, changesp, timep);
+                /*
                 uint c=0;
                 for (uint k=0; k < changesp[j]; k++) {
                         if (timep[k] <= t) {
@@ -288,6 +289,11 @@ void TGraph::direct_point(uint v, uint t, uint *res)  {
                 }
                 
                 if (c%2 == 1) res[++i] = edgesp[j];
+                */
+                uint *low = lower_bound(timep, timep+changesp[j], t+1);
+                if ( (low-timep)%2 == 1) res[++i] = edgesp[j];
+                  
+                
         }
         
         *res = i;
@@ -317,7 +323,7 @@ void TGraph::direct_interval(uint v, uint tstart, uint tend, uint semantic, uint
         
         for(uint j=0; j <  tgraph[v].neighbors; j++) {
                 decodetime(v, j, edgetimesizep, changesp, timep);
-                
+                /*
                 uint c=0;
                 uint ci=0;
                 for (uint k=0; k < changesp[j]; k++) {
@@ -330,12 +336,23 @@ void TGraph::direct_interval(uint v, uint tstart, uint tend, uint semantic, uint
                 
                         if (timep[k] > tend) break;
                 }
-                
                 if (semantic == 0) {
                         if (c%2==1 || ci > 0) res[++i] = edgesp[j];
                 }
                 else if (semantic == 1) {
                         if (c%2==1 && ci == 0) res[++i] = edgesp[j];
+                }
+                */
+                uint *low = lower_bound(timep, timep+changesp[j], tstart+1);
+                uint *mid = lower_bound(timep,  timep+changesp[j], tend+1);
+                
+                //if ( (low-timep)%2 == 1) res[++i] = edgesp[j];
+                
+                if (semantic == 0) {
+                        if ((low-timep)%2==1 || (mid-low) > 0) res[++i] = edgesp[j];
+                }
+                else if (semantic == 1) {
+                        if ((low-timep)%2==1 && (mid-low) == 0) res[++i] = edgesp[j];
                 }
                 
         }
@@ -361,7 +378,7 @@ void TGraph::direct_strong(uint v, uint tstart, uint tend, uint *res)  {
 
 
 uint TGraph::snapshot(uint t){
-  /* 
+  
   // This code fails... I dont know why :(
   uint *buffer = new uint [BUFFER];
   
@@ -374,21 +391,18 @@ uint TGraph::snapshot(uint t){
   delete [] buffer;
   
   return edges;
-  */
   
-        uint *res = new uint [BUFFER];
+  /*
+  uint *res = new uint [BUFFER];
         
-        uint *timep = new uint[BUFFER];
+  uint *timep = new uint[BUFFER];
 	uint *changesp = new uint[BUFFER];
 	uint *edgesp = new uint[BUFFER];
 	uint *edgetimesizep = new uint[BUFFER];
         
-        uint edges=0;
-        for(uint v=0; v < nodes; v++) {
-
-          if (v>=nodes || tgraph[v].neighbors == 0) continue;
-
-
+  uint edges=0;
+  for(uint v=0; v < nodes; v++) {
+    if (v>=nodes || tgraph[v].neighbors == 0) continue;
 
   	cc->Decompress(tgraph[v].cchanges, changesp, tgraph[v].neighbors);
   	cc->Decompress(tgraph[v].cedges, edgesp, tgraph[v].neighbors);
@@ -396,37 +410,36 @@ uint TGraph::snapshot(uint t){
 	
   	cc->Decompress(tgraph[v].cedgetimesize, edgetimesizep, tgraph[v].neighbors);
 	
-          uint i=0;
+    uint i=0;
         
-          for(uint j=0; j < tgraph[v].neighbors; j++) {
-                  decodetime(v, j, edgetimesizep, changesp, timep);
-                  uint c=0;
-                  for (uint k=0; k < changesp[j]; k++) {
-                          if (timep[k] <= t) {
-                                  c++;
-                          }
-                  }
+    for(uint j=0; j < tgraph[v].neighbors; j++) {
+        decodetime(v, j, edgetimesizep, changesp, timep);
+                  
+                  //uint c=0;
+                  //for (uint k=0; k < changesp[j]; k++) {
+                  //        if (timep[k] <= t) {
+                  //                c++;
+                  //        }
+                  //}
                 
-                  if (c%2 == 1) res[++i] = edgesp[j];
-          }
+                  //if (c%2 == 1) res[++i] = edgesp[j];
+                                    
+        uint *low = lower_bound(timep, timep+changesp[j], t+1);
+        if ( (low-timep)%2 == 1) res[++i] = edgesp[j];
+    }
         
-          *res = i;
-
-
-
-
-
-
-                edges += *res;
-        }
+    *res = i;
+    edges += *res;
+  }
         
-        delete [] timep;
+  delete [] timep;
 	delete [] changesp;
 	delete [] edgesp;
 	delete [] edgetimesizep;
-        delete [] res;
+  delete [] res;
         
-        return edges;
+  return edges;
+  */
 }
 
 int TGraph::edge_point(uint v, uint u, uint t){
@@ -446,7 +459,7 @@ int TGraph::edge_point(uint v, uint u, uint t){
         uint *p;
         p = (uint *)bsearch(&u, edgesp, tgraph[v].neighbors, sizeof(uint), compare);
         
-	uint c=0;
+
         int ok = 0;
         if (p == NULL) { return ok;}
         else {
@@ -454,7 +467,8 @@ int TGraph::edge_point(uint v, uint u, uint t){
                 uint j = (uint)(p - edgesp);
                  decodetime(v, j, edgetimesizep, changesp, timep);
                 
-                
+      /*          
+                 	uint c=0;
                 for (uint k=0; k < changesp[j]; k++) {
                        if (timep[k] <= t) {
                                c++;
@@ -464,6 +478,11 @@ int TGraph::edge_point(uint v, uint u, uint t){
 		       }
                 }
 		if ( c % 2 == 1) ok = 1;
+    */
+    uint *low = lower_bound(timep, timep+changesp[j], t+1);
+    if ( (low-timep)%2 == 1) ok = 1;
+    
+    
         }
 	
 	
@@ -495,8 +514,6 @@ int TGraph::edge_interval(uint v, uint u, uint tstart, uint tend, uint semantic)
         
         uint *p;
         p = (uint *)bsearch(&u, edgesp, tgraph[v].neighbors, sizeof(uint), compare);
-        
-	uint c=0, ci=0;
 	
         int ok = 0;
         if (p == NULL) return ok;
@@ -505,7 +522,8 @@ int TGraph::edge_interval(uint v, uint u, uint tstart, uint tend, uint semantic)
                  decodetime(v, j, edgetimesizep, changesp, timep);
                 
                 
-                
+                 /*
+                 	uint c=0, ci=0;
                 for (uint k=0; k < changesp[j]; k++) {
                        if (timep[k] <= tstart) {
                                 c++;
@@ -524,6 +542,18 @@ int TGraph::edge_interval(uint v, uint u, uint tstart, uint tend, uint semantic)
                 
                 else if (semantic == 1) {
                          if (c%2==1 && ci == 0) ok = 1;
+                }*/
+                
+                uint *low = lower_bound(timep, timep+changesp[j], tstart+1);
+                uint *mid = lower_bound(timep,  timep+changesp[j], tend+1);
+                
+                //if ( (low-timep)%2 == 1) res[++i] = edgesp[j];
+                
+                if (semantic == 0) {
+                        if ((low-timep)%2==1 || (mid-low) > 0) ok=1;
+                }
+                else if (semantic == 1) {
+                        if ((low-timep)%2==1 && (mid-low) == 0) ok=1;
                 }
         }
         

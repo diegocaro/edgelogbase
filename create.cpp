@@ -6,6 +6,9 @@
 #include <map>
 #include <set>
 #include <assert.h>
+
+#include <unistd.h>
+
 #include "tgraph.h"
 #include "tgraphreader.h"
 #include "debug.h"
