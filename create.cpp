@@ -6,7 +6,7 @@
 #include <map>
 #include <set>
 #include <assert.h>
-#include <list>
+
 #include <unistd.h>
 
 #include "tgraph.h"
@@ -70,18 +70,18 @@ TGraphReader* readcontacts() {
 	uint nodes, edges, lifetime, contacts;
 	uint u,v,a,b;
 
-	vector < map<uint, list<uint> > > btable;
-	vector < set<uint> > revgraph; //edges are in the form v,u
+	map < uint, map<uint, vector<uint> > > btable;
+	map < uint, set<uint> > revgraph; //edges are in the form v,u
 	scanf("%u %u %u %u", &nodes, &edges, &lifetime, &contacts);
-
+  /*
 	for(uint i = 0; i < nodes; i++) {
-		map<uint, list<uint> > t;
+		map<uint, vector<uint> > t;
 		btable.push_back(t);
 
 		set<uint> s;
 		revgraph.push_back(s);
 	}
-
+*/
 	uint c_read = 0;
 	while( EOF != scanf("%u %u %u %u", &u, &v, &a, &b)) {
 		c_read++;
@@ -103,24 +103,24 @@ TGraphReader* readcontacts() {
 	TGraphReader *tgraphreader = new TGraphReader(nodes,edges,2*contacts,lifetime);
 
 
-	map<uint, list<uint> >::iterator it;
+	map<uint, vector<uint> >::iterator it;
 	// temporal graph
 	for(uint i = 0; i < nodes; i++) {
 		if(i%10000==0) fprintf(stderr, "Copying temporal %.1f%%\r", (float)i/nodes*100);
 
 		for( it = btable[i].begin(); it != btable[i].end(); ++it) {
-			for(list<uint>::iterator it2 = (it->second).begin(); it2 != (it->second).end(); ++it2 ) {
-				tgraphreader->addChange(i, *it2, it->first);
+			for(uint j = 0; j < (it->second).size(); j++ ) {
+				tgraphreader->addChange(i, (it->second).at(j), it->first);
 			}
 
-      //vector<uint>().swap(it->second);
+      vector<uint>().swap(it->second);
       (it->second).clear();
-      
 		}
-    btable[i].clear(); 
+    btable[i].clear();
+    btable.erase(i);
 	}
   
-  vector < map<uint, list<uint> > >().swap(btable);
+  //vector < map<uint, vector<uint> > >().swap(btable);
   btable.clear();
   
 	//reverse neighbors
@@ -132,8 +132,9 @@ TGraphReader* readcontacts() {
 			tgraphreader->addReverseEdge(i, *its);
 		}
     revgraph[i].clear();
+    revgraph.erase(i);
 	}
-  vector < set<uint> >().swap(revgraph);
+  //vector < set<uint> >().swap(revgraph);
   revgraph.clear();
 
 
