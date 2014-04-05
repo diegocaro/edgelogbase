@@ -70,18 +70,18 @@ TGraphReader* readcontacts() {
 	uint nodes, edges, lifetime, contacts;
 	uint u,v,a,b;
 
-	map < uint, map<uint, vector<uint> > > btable;
-	map < uint, set<uint> > revgraph; //edges are in the form v,u
+	vector < map<uint, vector<uint> > > btable;
+	vector < set<uint> > revgraph; //edges are in the form v,u
 	scanf("%u %u %u %u", &nodes, &edges, &lifetime, &contacts);
-  /*
-	for(uint i = 0; i < nodes; i++) {
-		map<uint, vector<uint> > t;
-		btable.push_back(t);
 
-		set<uint> s;
-		revgraph.push_back(s);
-	}
-*/
+  btable.reserve(nodes+1);
+  revgraph.reserve(nodes+1);
+
+	map<uint, vector<uint> > tm;
+	btable.insert(btable.begin(), nodes, tm);
+  set<uint> ts;
+  revgraph.insert(revgraph.begin(), nodes, ts);
+  
 	uint c_read = 0;
 	while( EOF != scanf("%u %u %u %u", &u, &v, &a, &b)) {
 		c_read++;
@@ -115,12 +115,12 @@ TGraphReader* readcontacts() {
 
       vector<uint>().swap(it->second);
       (it->second).clear();
+      
 		}
-    btable[i].clear();
-    btable.erase(i);
+    btable[i].clear(); 
 	}
   
-  //vector < map<uint, vector<uint> > >().swap(btable);
+  vector < map<uint, vector<uint> > >().swap(btable);
   btable.clear();
   
 	//reverse neighbors
@@ -132,9 +132,8 @@ TGraphReader* readcontacts() {
 			tgraphreader->addReverseEdge(i, *its);
 		}
     revgraph[i].clear();
-    revgraph.erase(i);
 	}
-  //vector < set<uint> >().swap(revgraph);
+  vector < set<uint> >().swap(revgraph);
   revgraph.clear();
 
 
