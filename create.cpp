@@ -112,11 +112,15 @@ TGraphReader* readcontacts() {
 			for(uint j = 0; j < (it->second).size(); j++ ) {
 				tgraphreader->addChange(i, (it->second).at(j), it->first);
 			}
+
+      vector<uint>().swap(it->second);
+      (it->second).clear();
+      
 		}
-    btable[i].clear();
-
+    btable[i].clear(); 
 	}
-
+  btable.clear();
+  
 	//reverse neighbors
 	set<uint>::iterator its;
 	for(uint i = 0; i < nodes; i++) {
@@ -127,6 +131,7 @@ TGraphReader* readcontacts() {
 		}
     revgraph[i].clear();
 	}
+  revgraph.clear();
 
 
 	return tgraphreader;
