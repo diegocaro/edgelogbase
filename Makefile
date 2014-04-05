@@ -1,7 +1,6 @@
 DEPEN_COMPRESS=../compresslists/
 DEPEN_COMPRESS2=../compresslists/compression_toolkit/
 
-CC=g++
 DEBUG = -g -DDEBUG
 
 EXPERIMENTS = -DEXPERIMENTS
@@ -45,7 +44,7 @@ experiments: clean all
 #	$(CC) $(LDFLAGS) $(OBJECTS) $(DEPENOBJS) -o $@
 
 .cpp.o:
-	$(CC) $(CFLAGS) $< -o $@
+	$(CXX) $(CFLAGS) $< -o $@
 
 clean: cleanobj cleanexe
 
@@ -56,19 +55,16 @@ cleanexe:
 	rm -f $(EXECUTABLE)
 
 create: create.o
-	$(CC) $(OBJECTS) $(DEPENOBJS) $< -o $@$(EXT) $(LDFLAGS)
+	$(CXX) $(OBJECTS) $(DEPENOBJS) $< -o $@$(EXT) $(LDFLAGS)
 
 use: use.o tgraph.o
-	$(CC) $(OBJECTS) $(DEPENOBJS) $< -o $@$(EXT) $(LDFLAGS)
+	$(CXX) $(OBJECTS) $(DEPENOBJS) $< -o $@$(EXT) $(LDFLAGS)
 
 benchmark: benchmark.o
-	$(CC) $(OBJECTS) $(DEPENOBJS) $< -o $@$(EXT) $(LDFLAGS)
+	$(CXX) $(OBJECTS) $(DEPENOBJS) $< -o $@$(EXT) $(LDFLAGS)
 
 getsize: getsize.o
-	$(CC) $(OBJECTS) $(DEPENOBJS) $< -o $@$(EXT) $(LDFLAGS)
-
-text2adjacencybin: text2adjacencybin.o
-	$(CC) $(OBJECTS) $(DEPENOBJS) $< -o $@$(EXT) $(LDFLAGS)
+	$(CXX) $(OBJECTS) $(DEPENOBJS) $< -o $@$(EXT) $(LDFLAGS)
 
 exp-query: exp-query.o
-	$(CC) $(OBJECTS) $(DEPENOBJS) $< -o $@$(EXT) $(LDFLAGS)
+	$(CXX) $(OBJECTS) $(DEPENOBJS) $< -o $@$(EXT) $(LDFLAGS)
