@@ -177,6 +177,9 @@ void TGraph::create(TGraphReader &tgr) {
                         j++;
                         
                         csize_time += csize;
+                        
+                        vector<uint>().swap(it->second);
+                        (it->second).clear();
                 }
 		
 		tgraph[i].neighbors = neighbors;
@@ -233,6 +236,8 @@ void TGraph::create(TGraphReader &tgr) {
                 reverse[i].csize = csize;
                 reverse[i].clist = new uint[csize];
                 memcpy(reverse[i].clist, ccedgebuffer, csize * sizeof(uint));
+
+                vector<uint>().swap(tgr.revgraph[i].neighbors);
 
                 tgr.revgraph[i].neighbors.clear();
 
