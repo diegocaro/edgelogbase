@@ -70,14 +70,14 @@ TGraphReader* readcontacts() {
 	uint nodes, edges, lifetime, contacts;
 	uint u,v,a,b;
 
-	vector < map<uint, vector<uint> > > btable;
+	vector < map<uint, set<uint> > > btable;
 	vector < set<uint> > revgraph; //edges are in the form v,u
 	scanf("%u %u %u %u", &nodes, &edges, &lifetime, &contacts);
 
   btable.reserve(nodes+1);
   revgraph.reserve(nodes+1);
 
-	map<uint, vector<uint> > tm;
+	map<uint, set<uint> > tm;
 	btable.insert(btable.begin(), nodes, tm);
   set<uint> ts;
   revgraph.insert(revgraph.begin(), nodes, ts);
@@ -87,14 +87,14 @@ TGraphReader* readcontacts() {
 		c_read++;
 		if(c_read%500000==0) fprintf(stderr, "Processing %.1f%%\r", (float)c_read/contacts*100);
 
-		btable[u][a].push_back(v);
+		btable[u][v].insert(a);
 
 		//reverse node
 		revgraph[v].insert(u);
 
 		if (b == lifetime-1) continue;
 
-		btable[u][b].push_back(v);
+		btable[u][v].insert(b);
 	}
 	fprintf(stderr, "Processing %.1f%%\r", (float)c_read/contacts*100);
 	assert(c_read == contacts);
@@ -103,31 +103,32 @@ TGraphReader* readcontacts() {
 	TGraphReader *tgraphreader = new TGraphReader(nodes,edges,2*contacts,lifetime);
 
 
-	map<uint, vector<uint> >::iterator it;
+	map<uint, set<uint> >::iterator it;
 	// temporal graph
 	for(uint i = 0; i < nodes; i++) {
-		if(i%10000==0) fprintf(stderr, "Copying temporal %.1f%%\r", (float)i/nodes*100);
+		if(i%100==0) fprintf(stderr, "Copying temporal %.1f%%\r", (float)i/nodes*100);
 
 		for( it = btable[i].begin(); it != btable[i].end(); ++it) {
-			for(uint j = 0; j < (it->second).size(); j++ ) {
-				tgraphreader->addChange(i, (it->second).at(j), it->first);
+      tgraphreader->setCapacity(i, it->first, (it->second).size());
+			for( set<uint>::iterator it2 = (it->second).begin(); it2 != (it->second).end(); ++it2 ) {
+				tgraphreader->addChange(i, it->first, *it2);
 			}
 
-      vector<uint>().swap(it->second);
+      //vector<uint>().swap(it->second);
       (it->second).clear();
       
 		}
     btable[i].clear(); 
 	}
   
-  vector < map<uint, vector<uint> > >().swap(btable);
+  vector < map<uint, set<uint> > >().swap(btable);
   btable.clear();
   
 	//reverse neighbors
 	set<uint>::iterator its;
 	for(uint i = 0; i < nodes; i++) {
-		if(i%10000==0) fprintf(stderr, "Copying reverse %.1f%%\r", (float)i/nodes*100);
-    
+		if(i%100==0) fprintf(stderr, "Copying reverse %.1f%%\r", (float)i/nodes*100);
+    tgraphreader->setCapacityReverse(i, revgraph[i].size());
 		for( its = revgraph[i].begin(); its != revgraph[i].end(); ++its) {
 			tgraphreader->addReverseEdge(i, *its);
 		}
