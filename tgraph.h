@@ -8,7 +8,7 @@
 #include "debug.h"
 
 #define BLOCKSIZE 128
-#define BUFFER 67108864 //256 megabytes
+#define BUFFER 2621440 //10 megabytes
 
 #define CP_S9 "s9"
 #define CP_S16 "s16"
