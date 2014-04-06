@@ -6,7 +6,7 @@
 #include <map>
 #include <set>
 #include <assert.h>
-
+#include <algorithm>
 #include <unistd.h>
 
 #include "tgraph.h"
@@ -70,14 +70,14 @@ TGraphReader* readcontacts() {
 	uint nodes, edges, lifetime, contacts;
 	uint u,v,a,b;
 
-	vector < map<uint, set<uint> > > btable;
+	vector < map<uint, vector<uint> > > btable;
 	vector < set<uint> > revgraph; //edges are in the form v,u
 	scanf("%u %u %u %u", &nodes, &edges, &lifetime, &contacts);
 
   btable.reserve(nodes+1);
   revgraph.reserve(nodes+1);
 
-	map<uint, set<uint> > tm;
+	map<uint, vector<uint> > tm;
 	btable.insert(btable.begin(), nodes, tm);
   set<uint> ts;
   revgraph.insert(revgraph.begin(), nodes, ts);
@@ -87,14 +87,14 @@ TGraphReader* readcontacts() {
 		c_read++;
 		if(c_read%500000==0) fprintf(stderr, "Processing %.1f%%\r", (float)c_read/contacts*100);
 
-		btable[u][v].insert(a);
+		btable[u][v].push_back(a);
 
 		//reverse node
 		revgraph[v].insert(u);
 
 		if (b == lifetime-1) continue;
 
-		btable[u][v].insert(b);
+		btable[u][v].push_back(b);
 	}
 	fprintf(stderr, "Processing %.1f%%\r", (float)c_read/contacts*100);
 	assert(c_read == contacts);
@@ -103,25 +103,28 @@ TGraphReader* readcontacts() {
 	TGraphReader *tgraphreader = new TGraphReader(nodes,edges,2*contacts,lifetime);
 
 
-	map<uint, set<uint> >::iterator it;
+	map<uint, vector<uint> >::iterator it;
 	// temporal graph
 	for(uint i = 0; i < nodes; i++) {
 		if(i%100==0) fprintf(stderr, "Copying temporal %.1f%%\r", (float)i/nodes*100);
 
 		for( it = btable[i].begin(); it != btable[i].end(); ++it) {
       tgraphreader->setCapacity(i, it->first, (it->second).size());
-			for( set<uint>::iterator it2 = (it->second).begin(); it2 != (it->second).end(); ++it2 ) {
+      
+      sort((it->second).begin(), (it->second).end());
+      
+			for( vector<uint>::iterator it2 = (it->second).begin(); it2 != (it->second).end(); ++it2 ) {
 				tgraphreader->addChange(i, it->first, *it2);
 			}
 
-      //vector<uint>().swap(it->second);
+      vector<uint>().swap(it->second);
       (it->second).clear();
       
 		}
     btable[i].clear(); 
 	}
   
-  vector < map<uint, set<uint> > >().swap(btable);
+  vector < map<uint, vector<uint> > >().swap(btable);
   btable.clear();
   
 	//reverse neighbors
