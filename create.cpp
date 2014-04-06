@@ -6,7 +6,7 @@
 #include <map>
 #include <set>
 #include <assert.h>
-#include <algorithm>
+
 #include <unistd.h>
 
 #include "tgraph.h"
@@ -87,14 +87,14 @@ TGraphReader* readcontacts() {
 		c_read++;
 		if(c_read%500000==0) fprintf(stderr, "Processing %.1f%%\r", (float)c_read/contacts*100);
 
-		btable[u][v].push_back(a);
+		btable[u][a].push_back(v);
 
 		//reverse node
 		revgraph[v].insert(u);
 
 		if (b == lifetime-1) continue;
 
-		btable[u][v].push_back(b);
+		btable[u][b].push_back(v);
 	}
 	fprintf(stderr, "Processing %.1f%%\r", (float)c_read/contacts*100);
 	assert(c_read == contacts);
@@ -109,12 +109,8 @@ TGraphReader* readcontacts() {
 		if(i%100==0) fprintf(stderr, "Copying temporal %.1f%%\r", (float)i/nodes*100);
 
 		for( it = btable[i].begin(); it != btable[i].end(); ++it) {
-      tgraphreader->setCapacity(i, it->first, (it->second).size());
-      
-      sort((it->second).begin(), (it->second).end());
-      
-			for( vector<uint>::iterator it2 = (it->second).begin(); it2 != (it->second).end(); ++it2 ) {
-				tgraphreader->addChange(i, it->first, *it2);
+			for(uint j = 0; j < (it->second).size(); j++ ) {
+				tgraphreader->addChange(i, (it->second).at(j), it->first);
 			}
 
       vector<uint>().swap(it->second);
@@ -123,7 +119,6 @@ TGraphReader* readcontacts() {
 		}
     btable[i].clear(); 
 	}
-  
   vector < map<uint, vector<uint> > >().swap(btable);
   btable.clear();
   
