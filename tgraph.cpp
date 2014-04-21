@@ -642,6 +642,7 @@ void TGraph::reverse_point(uint v, uint t, uint *res) {
         uint i=0;
 
         for(uint j=0; j < reverse[v].size; j++) {
+
         	if (edge_point(nodep[j], v, t)) {
         		res[++i] = nodep[j];
         	}
