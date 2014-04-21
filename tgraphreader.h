@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include <algorithm>
 #include <sys/types.h>
 
 using namespace std;
@@ -14,6 +15,15 @@ public:
         void addEvent(uint v, uint t) {
                 timepoints[v].push_back(t);
         }
+        
+        void sort() {
+          map< uint, vector<uint> >::iterator it;
+          for (it=timepoints.begin(); it!=timepoints.end(); ++it) {
+            std::sort(it->second.begin(), it->second.end());
+          }
+          
+        }
+        
 };
 
 
