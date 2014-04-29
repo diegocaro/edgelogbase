@@ -273,10 +273,10 @@ void TGraph::decodereverse(uint v, uint *res) {
 void TGraph::direct_point(uint v, uint t, uint *res)  {
         if (v>=nodes || tgraph[v].neighbors == 0) return;
 
-        uint *timep = new uint[BUFFER+BLOCKSIZE*tgraph[v].csize_cedgetimesize];
-	uint *changesp = new uint[BUFFER+BLOCKSIZE*tgraph[v].neighbors];
-	uint *edgesp = new uint[BUFFER+BLOCKSIZE*tgraph[v].neighbors];
-	uint *edgetimesizep = new uint[BUFFER+BLOCKSIZE*tgraph[v].neighbors];
+        uint *timep = new uint[BLOCKSIZE*tgraph[v].csize_cedgetimesize];
+	uint *changesp = new uint[BLOCKSIZE+tgraph[v].neighbors];
+	uint *edgesp = new uint[BLOCKSIZE+tgraph[v].neighbors];
+	uint *edgetimesizep = new uint[BLOCKSIZE+tgraph[v].neighbors];
 	
 	cc->Decompress(tgraph[v].cchanges, changesp, tgraph[v].neighbors);
 	cc->Decompress(tgraph[v].cedges, edgesp, tgraph[v].neighbors);
@@ -315,10 +315,10 @@ void TGraph::direct_point(uint v, uint t, uint *res)  {
 void TGraph::direct_interval(uint v, uint tstart, uint tend, uint semantic, uint *res)  {
         if (v>=nodes || tgraph[v].neighbors == 0) return;
 
-        uint *timep = new uint[BUFFER+BLOCKSIZE*tgraph[v].csize_cedgetimesize];
-	uint *changesp = new uint[BUFFER+BLOCKSIZE*tgraph[v].neighbors];
-	uint *edgesp = new uint[BUFFER+BLOCKSIZE*tgraph[v].neighbors];
-	uint *edgetimesizep = new uint[BUFFER+BLOCKSIZE*tgraph[v].neighbors];
+        uint *timep = new uint[BLOCKSIZE*tgraph[v].csize_cedgetimesize];
+	uint *changesp = new uint[BLOCKSIZE+tgraph[v].neighbors];
+	uint *edgesp = new uint[BLOCKSIZE+tgraph[v].neighbors];
+	uint *edgetimesizep = new uint[BLOCKSIZE+tgraph[v].neighbors];
 	
 	cc->Decompress(tgraph[v].cchanges, changesp, tgraph[v].neighbors);
 	cc->Decompress(tgraph[v].cedges, edgesp, tgraph[v].neighbors);
@@ -387,11 +387,13 @@ void TGraph::direct_strong(uint v, uint tstart, uint tend, uint *res)  {
 
 uint TGraph::snapshot(uint t){
   
-  // This code fails... I dont know why :(
+	/*
   uint *buffer = new uint [BUFFER];
   
   uint edges=0;
   for(uint v=0; v < nodes; v++) {
+	  printf("processing... %.2f%%\r", (float)v/nodes*100);
+	  *buffer = 0;
           direct_point(v, t, buffer);
           edges += *buffer;
   }
@@ -399,8 +401,9 @@ uint TGraph::snapshot(uint t){
   delete [] buffer;
   
   return edges;
+  */
   
-  /*
+    // This code fails... I dont know why :(
   uint *res = new uint [BUFFER];
         
   uint *timep = new uint[BUFFER];
@@ -447,15 +450,15 @@ uint TGraph::snapshot(uint t){
   delete [] res;
         
   return edges;
-  */
+  
 }
 
 int TGraph::edge_point(uint v, uint u, uint t){
 	 if (v>=nodes || tgraph[v].neighbors == 0) return 0;
-        uint *timep = new uint[BUFFER+BLOCKSIZE*tgraph[v].csize_cedgetimesize];
-	uint *changesp = new uint[BUFFER+BLOCKSIZE*tgraph[v].neighbors];
-	uint *edgesp = new uint[BUFFER+BLOCKSIZE*tgraph[v].neighbors];
-	uint *edgetimesizep = new uint[BUFFER+BLOCKSIZE*tgraph[v].neighbors];
+        uint *timep = new uint[BLOCKSIZE*tgraph[v].csize_ctime];
+	uint *changesp = new uint[BLOCKSIZE+tgraph[v].neighbors];
+	uint *edgesp = new uint[BLOCKSIZE+tgraph[v].neighbors];
+	uint *edgetimesizep = new uint[BLOCKSIZE+tgraph[v].neighbors];
 	
 	cc->Decompress(tgraph[v].cchanges, changesp, tgraph[v].neighbors);
 	cc->Decompress(tgraph[v].cedges, edgesp, tgraph[v].neighbors);
@@ -508,10 +511,10 @@ int TGraph::edge_point(uint v, uint u, uint t){
 
 int TGraph::edge_interval(uint v, uint u, uint tstart, uint tend, uint semantic){
 	if (v>=nodes || tgraph[v].neighbors == 0) return 0;
-	uint *timep = new uint[BUFFER+BLOCKSIZE*tgraph[v].csize_cedgetimesize];
-	uint *changesp = new uint[BUFFER+BLOCKSIZE*tgraph[v].neighbors];
-	uint *edgesp = new uint[BUFFER+BLOCKSIZE*tgraph[v].neighbors];
-	uint *edgetimesizep = new uint[BUFFER+BLOCKSIZE*tgraph[v].neighbors];
+	uint *timep = new uint[BLOCKSIZE*tgraph[v].csize_ctime];
+	uint *changesp = new uint[BLOCKSIZE+tgraph[v].neighbors];
+	uint *edgesp = new uint[BLOCKSIZE+tgraph[v].neighbors];
+	uint *edgetimesizep = new uint[BLOCKSIZE+tgraph[v].neighbors];
 
 	cc->Decompress(tgraph[v].cchanges, changesp, tgraph[v].neighbors);
 	cc->Decompress(tgraph[v].cedges, edgesp, tgraph[v].neighbors);
@@ -586,10 +589,11 @@ int TGraph::edge_weak(uint u, uint v, uint tstart, uint tend){
 
 int TGraph::edge_next(uint v, uint u, uint t){
 	if (v>=nodes || tgraph[v].neighbors == 0) return -1;
-	uint *timep = new uint[BUFFER+BLOCKSIZE*tgraph[v].csize_cedgetimesize];
-	uint *changesp = new uint[BUFFER+BLOCKSIZE*tgraph[v].neighbors];
-	uint *edgesp = new uint[BUFFER+BLOCKSIZE*tgraph[v].neighbors];
-	uint *edgetimesizep = new uint[BUFFER+BLOCKSIZE*tgraph[v].neighbors];
+	uint *timep = new uint[BLOCKSIZE*tgraph[v].csize_ctime];
+	
+	uint *changesp = new uint[BLOCKSIZE+tgraph[v].neighbors];
+	uint *edgesp = new uint[BLOCKSIZE+tgraph[v].neighbors];
+	uint *edgetimesizep = new uint[BLOCKSIZE+tgraph[v].neighbors];
 
 	cc->Decompress(tgraph[v].cchanges, changesp, tgraph[v].neighbors);
 	cc->Decompress(tgraph[v].cedges, edgesp, tgraph[v].neighbors);
@@ -635,7 +639,7 @@ int TGraph::edge_next(uint v, uint u, uint t){
 void TGraph::reverse_point(uint v, uint t, uint *res) {
 	if (v>=nodes || reverse[v].size == 0) return;
 
-	uint *nodep = new uint[reverse[v].size+100];
+	uint *nodep = new uint[reverse[v].size+BLOCKSIZE];
 
 	decodereverse(v, nodep);
 
@@ -655,7 +659,7 @@ void TGraph::reverse_point(uint v, uint t, uint *res) {
 void TGraph::reverse_weak(uint v, uint tstart, uint tend, uint *res) {
 	if (v>=nodes || reverse[v].size == 0) return;
 
-	uint *nodep = new uint[reverse[v].size+100];
+	uint *nodep = new uint[reverse[v].size+BLOCKSIZE];
 
 	decodereverse(v, nodep);
 
@@ -674,7 +678,7 @@ void TGraph::reverse_weak(uint v, uint tstart, uint tend, uint *res) {
 void TGraph::reverse_strong(uint v, uint tstart, uint tend, uint *res) {
 	if (v>=nodes || reverse[v].size == 0) return;
 
-	uint *nodep = new uint[reverse[v].size+100];
+	uint *nodep = new uint[reverse[v].size+BLOCKSIZE];
 
 	decodereverse(v, nodep);
 

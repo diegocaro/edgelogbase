@@ -9,7 +9,7 @@
 #include "debug.h"
 
 #define BLOCKSIZE 128
-#define BUFFER 5242880 //20 megabytes
+#define BUFFER 67108864 //256 megabytes, 67108864 integers
 
 #define CP_S9 "s9"
 #define CP_S16 "s16"
@@ -40,17 +40,17 @@ public:
         uint neighbors; //number of edges
 	
 	// DELTA ENCODE
-	uint *cedges; //compressed list of edges
+	uint *cedges; //compressed list of edges (size: neighbors)
 	uint csize_cedges;
 	
-	uint *cchanges; //compressed number of changes by edge
+	uint *cchanges; //compressed number of changes by edge (size: neighbors)
 	uint csize_cchanges;
 	
 	// DELTA ENCODE
-	uint *ctime;  //compressed timepoints
+	uint *ctime;  //compressed timepoints (size: unknown, upper bound is csize_ctime*32 integers )
 	uint csize_ctime;
 	
-	uint *cedgetimesize; //size of each compressed list of time edges
+	uint *cedgetimesize; //size of each compressed list of time edges (size: neighbors)
 	uint csize_cedgetimesize;
 	
 };
