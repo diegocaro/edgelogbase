@@ -61,7 +61,7 @@ public:
         uint changes;
         uint maxtime;
         
-	enum CP_FORMAT cp;
+	char cp[100];
 	
         TGraphEventList* tgraph;
 
@@ -69,23 +69,13 @@ public:
 
         CodingPolicy *cc;
         
-	void set_policy(enum CP_FORMAT c) {
-		cp = c;
+	void set_policy(char *c) {
+		strcpy(cp,c);
 	}
 	
         void loadpolicy() {
                 cc = new CodingPolicy(CodingPolicy::kPosition);
-		
-		switch(cp) {
-			case S9: cc->LoadPolicy(CP_S9); INFO("Using S9"); break;
-			case S16: cc->LoadPolicy(CP_S16); INFO("Using S16"); break;
-			case VBYTE: cc->LoadPolicy(CP_VBYTE); INFO("Using VBYTE"); break;
-			case RICE: cc->LoadPolicy(CP_RICE); INFO("Using RICE"); break;
-			case PFOR: cc->LoadPolicy(CP_PFOR); INFO("Using PFOR"); break;
-			default: cc->LoadPolicy(CP_PFOR); INFO("Using S9"); break;
-		}
-		
-                
+				cc->LoadPolicy(cp);               
         }
 
         
