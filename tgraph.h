@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <sys/types.h>
+#include <cstring>
 #include "tgraphreader.h"
 #include "coding_policy.h"
 #include "debug.h"
