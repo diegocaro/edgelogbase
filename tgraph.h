@@ -19,6 +19,16 @@
 
 using namespace std;
 
+enum TypeGraph {
+	kInterval, kGrowth, kPoint
+};
+
+struct opts {
+	char *outfile;
+	char cp[100]; //coding policy
+	enum TypeGraph typegraph;
+};
+
 enum CP_FORMAT {
 	S9, S16, VBYTE, RICE, PFOR,
 };
@@ -37,7 +47,7 @@ public:
 class TGraphEventList {
 public:
 
-        uint neighbors; //number of edges
+    uint neighbors; //number of edges
 	
 	// DELTA ENCODE
 	uint *cedges; //compressed list of edges (size: neighbors)
@@ -62,7 +72,7 @@ public:
         uint changes;
         uint maxtime;
         
-	char cp[100];
+        struct opts opts;
 	
         TGraphEventList* tgraph;
 
@@ -70,13 +80,12 @@ public:
 
         CodingPolicy *cc;
         
-	void set_policy(char *c) {
-		strcpy(cp,c);
-	}
-	
-        void loadpolicy() {
+        void set_opts(struct opts o) {
+        	opts = o;
+        }
+	        void loadpolicy() {
                 cc = new CodingPolicy(CodingPolicy::kPosition);
-				cc->LoadPolicy(cp);               
+				cc->LoadPolicy(opts.cp);
         }
 
         

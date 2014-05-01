@@ -96,7 +96,6 @@ TGraph* TGraph::load(ifstream &in) {
         }
 
 
-        tg->set_policy(tg->cp);
         tg->loadpolicy();
         
         return tg;
