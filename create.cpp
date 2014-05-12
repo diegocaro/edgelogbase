@@ -23,10 +23,25 @@ int readopts(int argc, char **argv, struct opts *opts) {
 	opts->cp[0] = 0;
 	opts->typegraph = kInterval;
 
-	while ((o = getopt(argc, argv, "c:")) != -1) {
+	while ((o = getopt(argc, argv, "c:t:")) != -1) {
 		switch (o) {
 			case 'c':
 			strcpy(opts->cp, optarg);
+			break;
+			
+			case 't':
+			if(strcmp(optarg, "I")==0) {
+				INFO("Interval-contact Temporal Graph");
+				opts->typegraph = kInterval;
+			}
+			else if(strcmp(optarg, "P")==0) {
+				INFO("Point-contact Temporal Graph");
+				opts->typegraph = kPoint;
+			}
+			else if(strcmp(optarg, "G")==0) {
+				INFO("Growing Temporal Graph");
+				opts->typegraph = kGrowth;
+			}
 			break;
 			default: /* '?' */
 			break;
@@ -34,13 +49,19 @@ int readopts(int argc, char **argv, struct opts *opts) {
 	}
 	
         if (optind >= argc || (argc-optind) < 1 || opts->cp[0] == 0) {
-		fprintf(stderr, "%s -c \"compression string\" <outputfile> \n", argv[0]);
-		fprintf(stderr, "Expected argument for options: \n");
+		fprintf(stderr, "%s -c \"compression string\" -t \"typegraph\" <outputfile> \n", argv[0]);
+		
+		fprintf(stderr, "Expected type of graph (-t):\n");
+		fprintf(stderr, "\tI for Interval-contact Temporal Graph\n");
+		fprintf(stderr, "\tP for Point-contact Temporal Graph\n");
+		fprintf(stderr, "\tG for Growing Temporal Graph\n\n");		
+						
+		fprintf(stderr, "Expected argument for option -c: \n");
 		fprintf(stderr, "Block Coding: pfor, turbo-rice\n");
-			fprintf(stderr, "Non-Block Coding: RICE, S9, S16, VBYTE, NULL\n");
-				fprintf(stderr, "Parameter -c must be a non-block code, or a blockcode:blocksize:non-blockcode:paddingsize\n");
-					fprintf(stderr, "Example non-blockingcode: -c \"rice\"\n");
-							fprintf(stderr, "Example block-code: -c \"pfor:128:rice:128\"\n");
+		fprintf(stderr, "Non-Block Coding: RICE, S9, S16, VBYTE, NULL\n");
+		fprintf(stderr, "Parameter -c must be a non-block code, or a blockcode:blocksize:non-blockcode:paddingsize\n");
+		fprintf(stderr, "Example non-blockingcode: -c \"rice\"\n");
+		fprintf(stderr, "Example block-code: -c \"pfor:128:rice:128\"\n");
 //static const char kRiceCoding[] = "rice";
 //static const char kTurboRiceCoding[] = "turbo-rice";
 //static const char kPForDeltaCoding[] = "pfor";
