@@ -13,7 +13,11 @@
 
 using namespace std;
 
-
+void tovector(btree_set<uint> &s, vector<uint> &v) {
+	for(btree_set<uint>::iterator it=s.begin(); it != s.end(); ++it) {
+		v.push_back(*it);
+	}
+}
 
 void encodediff(vector<uint> &t) {
         uint val, old;
@@ -127,7 +131,7 @@ void TGraph::create(TGraphReader &tgr) {
 
         this->loadpolicy(); //load compression policy for time
         
-        map< uint, vector<uint> >::iterator it;
+		vector<uint> readset;
         
         uint neighbors; //list of edges
 	
@@ -153,7 +157,9 @@ void TGraph::create(TGraphReader &tgr) {
                 tgraph[i].cchanges = NULL;
 		tgraph[i].cedgetimesize = NULL;
 		
-                neighbors = tgr.tgraph[i].timepoints.size();
+        neighbors = tgr.tgraph[i].size();
+		
+		btree_map< uint, btree_set<uint> >::iterator it;
 		if (neighbors == 0) continue;
 		
                 curr_edges.clear();
@@ -162,33 +168,32 @@ void TGraph::create(TGraphReader &tgr) {
 		
                 uint j=0;
                 csize_time=0;
-                
-                tgr.tgraph[i].sort();
-                
-                for (it=tgr.tgraph[i].timepoints.begin(); it!=tgr.tgraph[i].timepoints.end(); ++it) {
-                        encodediff(it->second);
+               
+                for (it=tgr.tgraph[i].begin(); it!=tgr.tgraph[i].end(); ++it) {
+					readset.clear();
+					tovector(it->second, readset);
+                        encodediff(readset);
                         
-                        csize = cc->Compress(it->second.data(), ccedgebuffer, it->second.size());
+                        csize = cc->Compress(readset.data(), ccedgebuffer, readset.size());
                         
                         memcpy(&cctimebuffer[csize_time], ccedgebuffer, csize * sizeof(uint));
                         
                         curr_edges.push_back(it->first);
-			curr_changes.push_back(it->second.size());
+						curr_changes.push_back(readset.size());
                         curr_edgetimesize.push_back(csize_time);
                         
                         j++;
                         
                         csize_time += csize;
                         
-                        vector<uint>().swap(it->second);
                         (it->second).clear();
                 }
 		
 		tgraph[i].neighbors = neighbors;
 
 		tgraph[i].csize_ctime = csize_time;
-                tgraph[i].ctime = new uint [tgraph[i].csize_ctime];
-                memcpy(tgraph[i].ctime, cctimebuffer, csize_time * sizeof(uint));
+        tgraph[i].ctime = new uint [tgraph[i].csize_ctime];
+        memcpy(tgraph[i].ctime, cctimebuffer, csize_time * sizeof(uint));
 		
 
 		encodediff(curr_edges);
@@ -209,11 +214,11 @@ void TGraph::create(TGraphReader &tgr) {
 		
 		
 		//clean used variable
-		tgr.tgraph[i].timepoints.clear();
+		tgr.tgraph[i].clear();
         }
         fprintf(stderr, "\n");
         
-
+		tgr.tgraph.clear();
 
         // Creating reverse structure
         reverse = new TGraphReverse[nodes];
@@ -225,27 +230,28 @@ void TGraph::create(TGraphReader &tgr) {
                 reverse[i].csize = 0;
                 reverse[i].clist = NULL;
 
-                size = tgr.revgraph[i].neighbors.size();
+                size = tgr.revgraph[i].size();
 
                 if ( size == 0 ) {
                 	continue;
                 }
 
-                encodediff(tgr.revgraph[i].neighbors);
-                csize = cc->Compress(tgr.revgraph[i].neighbors.data(), ccedgebuffer, size);
+				readset.clear();
+				tovector(tgr.revgraph[i], readset);
+                encodediff(readset);
+                csize = cc->Compress(readset.data(), ccedgebuffer, size);
 
                 reverse[i].size = size;
                 reverse[i].csize = csize;
                 reverse[i].clist = new uint[csize];
                 memcpy(reverse[i].clist, ccedgebuffer, csize * sizeof(uint));
 
-                vector<uint>().swap(tgr.revgraph[i].neighbors);
-
-                tgr.revgraph[i].neighbors.clear();
+                //vector<uint>().swap(tgr.revgraph[i].neighbors);
+                tgr.revgraph[i].clear();
 
         }
 
-
+		tgr.revgraph.clear();
 
 
         delete [] ccedgebuffer;

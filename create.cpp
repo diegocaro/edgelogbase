@@ -3,8 +3,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <vector>
-#include <map>
-#include <set>
+//#include <map>
+//#include <set>
 #include <assert.h>
 
 #include <unistd.h>
@@ -167,14 +167,12 @@ TGraphReader* readcontacts(struct opts &opts) {
 	uint nodes, edges, lifetime, contacts;
 	uint u,v,a,b;
 
-	vector < set<uint> > revgraph; //edges are in the form v,u
+	//vector < set<uint> > revgraph; //edges are in the form v,u
 	scanf("%u %u %u %u", &nodes, &edges, &lifetime, &contacts);
 
-  revgraph.reserve(nodes+1);
-
-  set<uint> ts;
-  revgraph.insert(revgraph.begin(), nodes, ts);
-  
+//  revgraph.reserve(nodes+1);
+//  set<uint> ts;
+//  revgraph.insert(revgraph.begin(), nodes, ts);
   
 	TGraphReader *tgraphreader = new TGraphReader(nodes,edges,2*contacts,lifetime);
   
@@ -187,7 +185,7 @@ TGraphReader* readcontacts(struct opts &opts) {
 		tgraphreader->addChange(u, v, a);
 
 		//reverse node
-		revgraph[v].insert(u);
+		tgraphreader->addReverseEdge(v,u);
 
 		if ( opts.typegraph == kGrowth || opts.typegraph == kPoint) {
 			if (b == lifetime-1) continue;
@@ -197,19 +195,6 @@ TGraphReader* readcontacts(struct opts &opts) {
 	}
 	fprintf(stderr, "Processing %.1f%%\r", (float)c_read/contacts*100);
 	assert(c_read == contacts);
-
-	//reverse neighbors
-	set<uint>::iterator its;
-	for(uint i = 0; i < nodes; i++) {
-		if(i%100==0) fprintf(stderr, "Copying reverse %.1f%%\r", (float)i/nodes*100);
-    tgraphreader->setCapacityReverse(i, revgraph[i].size());
-		for( its = revgraph[i].begin(); its != revgraph[i].end(); ++its) {
-			tgraphreader->addReverseEdge(i, *its);
-		}
-    revgraph[i].clear();
-	}
-  vector < set<uint> >().swap(revgraph);
-  revgraph.clear();
 
 	return tgraphreader;
 }
