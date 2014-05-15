@@ -278,7 +278,7 @@ void TGraph::decodereverse(uint v, uint *res) {
 void TGraph::direct_point(uint v, uint t, uint *res)  {
         if (v>=nodes || tgraph[v].neighbors == 0) return;
 
-        uint *timep = new uint[BLOCKSIZE*tgraph[v].csize_cedgetimesize];
+        uint *timep = new uint[BLOCKSIZE*tgraph[v].csize_ctime];
 	uint *changesp = new uint[BLOCKSIZE+tgraph[v].neighbors];
 	uint *edgesp = new uint[BLOCKSIZE+tgraph[v].neighbors];
 	uint *edgetimesizep = new uint[BLOCKSIZE+tgraph[v].neighbors];
@@ -320,7 +320,7 @@ void TGraph::direct_point(uint v, uint t, uint *res)  {
 void TGraph::direct_interval(uint v, uint tstart, uint tend, uint semantic, uint *res)  {
         if (v>=nodes || tgraph[v].neighbors == 0) return;
 
-        uint *timep = new uint[BLOCKSIZE*tgraph[v].csize_cedgetimesize];
+        uint *timep = new uint[BLOCKSIZE*tgraph[v].csize_ctime];
 	uint *changesp = new uint[BLOCKSIZE+tgraph[v].neighbors];
 	uint *edgesp = new uint[BLOCKSIZE+tgraph[v].neighbors];
 	uint *edgetimesizep = new uint[BLOCKSIZE+tgraph[v].neighbors];
