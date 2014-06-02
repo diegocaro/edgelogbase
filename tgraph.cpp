@@ -1,6 +1,6 @@
+
 #include "tgraphreader.h"
 #include "tgraph.h"
-
 
 #include "cppUtils.h"
 #include "debug.h"
@@ -8,8 +8,7 @@
 #include "arraysort.h"
 #include <cstdlib>
 #include <cstring>
-
-
+#include <assert.h>
 
 using namespace std;
 
@@ -116,8 +115,8 @@ void TGraph::create(TGraphReader &tgr) {
         uint *ccedgebuffer = new uint[(BUFFER/BLOCKSIZE+1)*BLOCKSIZE];
         uint *cctimebuffer = new uint[(BUFFER/BLOCKSIZE+1)*BLOCKSIZE];
         //uint *timebuffer = new uint[(BUFFER/BLOCKSIZE+1)*BLOCKSIZE];
-        
-        nodes = tgr.nodes;
+
+	nodes = tgr.nodes;
         edges = tgr.edges;
         changes = tgr.changes;
         maxtime = tgr.maxtime;
@@ -170,16 +169,29 @@ void TGraph::create(TGraphReader &tgr) {
                 csize_time=0;
                
                 for (it=tgr.tgraph[i].begin(); it!=tgr.tgraph[i].end(); ++it) {
-					readset.clear();
-					tovector(it->second, readset);
+			readset.clear();
+			tovector(it->second, readset);
                         encodediff(readset);
-                        
+
+			// increase readset size to an upper multiply of blocksize
+			readset.reserve(cc->block_size()*(readset.size()/cc->block_size()+2));
                         csize = cc->Compress(readset.data(), ccedgebuffer, readset.size());
+			
+
+			// Checking compressed data
+			uint *n = new uint[ cc->block_size()*(readset.size()/cc->block_size()+2)];
+			cc->Decompress(ccedgebuffer, n, readset.size());
+			for(size_t k = 0; k < readset.size(); k++) {
+			  assert(n[k] == readset[k] && "Error compressing timepoints");
+			}
+			delete [] n;
+			
+
                         
                         memcpy(&cctimebuffer[csize_time], ccedgebuffer, csize * sizeof(uint));
                         
                         curr_edges.push_back(it->first);
-						curr_changes.push_back(readset.size());
+			curr_changes.push_back(readset.size());
                         curr_edgetimesize.push_back(csize_time);
                         
                         j++;
@@ -197,7 +209,20 @@ void TGraph::create(TGraphReader &tgr) {
 		
 
 		encodediff(curr_edges);
+		curr_edges.reserve(cc->block_size()*(curr_edges.size()/cc->block_size()+2));
 		tgraph[i].csize_cedges = cc->Compress(curr_edges.data(), ccedgebuffer, neighbors);
+		
+
+		// Checking compressed data                                                                                                                                                                                                                          
+		uint *n = new uint[ cc->block_size()*(curr_edges.size()/cc->block_size()+2)];
+		cc->Decompress(ccedgebuffer, n, curr_edges.size());
+		for(size_t k = 0; k < readset.size(); k++) {
+		  assert(n[k] == curr_edges[k] && "Error compressing aggregated graph");
+		}
+		delete [] n;
+
+
+
 		tgraph[i].cedges = new uint[tgraph[i].csize_cedges];
 		memcpy(tgraph[i].cedges, ccedgebuffer, tgraph[i].csize_cedges * sizeof(uint));
 		
@@ -236,10 +261,22 @@ void TGraph::create(TGraphReader &tgr) {
                 	continue;
                 }
 
-				readset.clear();
-				tovector(tgr.revgraph[i], readset);
+		readset.clear();
+		tovector(tgr.revgraph[i], readset);
                 encodediff(readset);
-                csize = cc->Compress(readset.data(), ccedgebuffer, size);
+                // increase readset size to an upper multiply of blocksize                                                                                                                                                                                           
+		readset.reserve(cc->block_size()*(readset.size()/cc->block_size()+2));
+
+		csize = cc->Compress(readset.data(), ccedgebuffer, size);
+
+
+		// Checking compressed data                                                                                                                                                                                                                          
+		uint *n = new uint[ cc->block_size()*(readset.size()/cc->block_size()+2)];
+		cc->Decompress(ccedgebuffer, n, readset.size());
+		for(size_t k = 0; k < readset.size(); k++) {
+		  assert(n[k] == readset[k] && "Error compressing reverse graph");
+		}
+		delete [] n;
 
                 reverse[i].size = size;
                 reverse[i].csize = csize;
@@ -252,7 +289,6 @@ void TGraph::create(TGraphReader &tgr) {
         }
 
 		tgr.revgraph.clear();
-
 
         delete [] ccedgebuffer;
 	delete [] cctimebuffer;
@@ -365,7 +401,7 @@ void TGraph::direct_interval(uint v, uint tstart, uint tend, uint semantic, uint
                         if ((low-timep)%2==1 || (mid-low) > 0) res[++i] = edgesp[j];
                 }
                 else if (semantic == 1) {
-                        if ((low-timep)%2==1 && (mid-low) == 0) res[++i] = edgesp[j];
+                       if ((low-timep)%2==1 && (mid-low) == 0) res[++i] = edgesp[j];
                 }
                 
         }
