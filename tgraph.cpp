@@ -216,7 +216,7 @@ void TGraph::create(TGraphReader &tgr) {
 		// Checking compressed data                                                                                                                                                                                                                          
 		uint *n = new uint[ cc->block_size()*(curr_edges.size()/cc->block_size()+2)];
 		cc->Decompress(ccedgebuffer, n, curr_edges.size());
-		for(size_t k = 0; k < readset.size(); k++) {
+		for(size_t k = 0; k < curr_edges.size(); k++) {
 		  assert(n[k] == curr_edges[k] && "Error compressing aggregated graph");
 		}
 		delete [] n;
