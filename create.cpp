@@ -169,7 +169,7 @@ TGraphReader* readcontacts(struct opts &opts) {
 
 	//vector < set<uint> > revgraph; //edges are in the form v,u
 	scanf("%u %u %u %u", &nodes, &edges, &lifetime, &contacts);
-
+	assert(contacts > 0);
 //  revgraph.reserve(nodes+1);
 //  set<uint> ts;
 //  revgraph.insert(revgraph.begin(), nodes, ts);
