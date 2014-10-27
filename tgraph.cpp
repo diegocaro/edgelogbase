@@ -734,3 +734,149 @@ void TGraph::reverse_strong(uint v, uint tstart, uint tend, uint *res) {
         *res = i;
         delete [] nodep;
 }
+
+
+
+size_t TGraph::change_point(uint t) {
+    return change_interval(t,t+1);
+}
+
+size_t TGraph::change_interval(uint ts, uint te) {
+    size_t edges=0;
+
+    uint *res = new uint [BUFFER];
+
+    uint *timep = new uint[BUFFER];
+      uint *changesp = new uint[BUFFER];
+      uint *edgesp = new uint[BUFFER];
+      uint *edgetimesizep = new uint[BUFFER];
+
+    for(uint v=0; v < nodes; v++) {
+      if (v>=nodes || tgraph[v].neighbors == 0) continue;
+
+      cc->Decompress(tgraph[v].cchanges, changesp, tgraph[v].neighbors);
+      cc->Decompress(tgraph[v].cedges, edgesp, tgraph[v].neighbors);
+      decodediff(edgesp, tgraph[v].neighbors);
+
+      cc->Decompress(tgraph[v].cedgetimesize, edgetimesizep, tgraph[v].neighbors);
+
+      uint i=0;
+
+      for(uint j=0; j < tgraph[v].neighbors; j++) {
+          decodetime(v, j, edgetimesizep, changesp, timep);
+
+          uint *low = lower_bound(timep, timep+changesp[j], ts);
+          uint *up = lower_bound(timep, timep+changesp[j], te);
+
+          if ( low < up ) res[++i] = edgesp[j];
+      }
+
+      *res = i;
+      edges += *res;
+    }
+
+    delete [] timep;
+      delete [] changesp;
+      delete [] edgesp;
+      delete [] edgetimesizep;
+    delete [] res;
+
+    return edges;
+}
+
+
+size_t TGraph::actived_point(uint t) {
+    return actived_interval(t,t+1);
+}
+
+size_t TGraph::actived_interval(uint ts, uint te) {
+    size_t edges=0;
+
+    uint *res = new uint [BUFFER];
+
+    uint *timep = new uint[BUFFER];
+      uint *changesp = new uint[BUFFER];
+      uint *edgesp = new uint[BUFFER];
+      uint *edgetimesizep = new uint[BUFFER];
+
+    for(uint v=0; v < nodes; v++) {
+      if (v>=nodes || tgraph[v].neighbors == 0) continue;
+
+      cc->Decompress(tgraph[v].cchanges, changesp, tgraph[v].neighbors);
+      cc->Decompress(tgraph[v].cedges, edgesp, tgraph[v].neighbors);
+      decodediff(edgesp, tgraph[v].neighbors);
+
+      cc->Decompress(tgraph[v].cedgetimesize, edgetimesizep, tgraph[v].neighbors);
+
+      uint i=0;
+
+      for(uint j=0; j < tgraph[v].neighbors; j++) {
+          decodetime(v, j, edgetimesizep, changesp, timep);
+
+          uint *low = lower_bound(timep, timep+changesp[j], ts);
+          uint *up = lower_bound(timep, timep+changesp[j], te);
+
+          if ( low < up && (low-timep)%2 == 0) res[++i] = edgesp[j];
+      }
+
+      *res = i;
+      edges += *res;
+    }
+
+    delete [] timep;
+      delete [] changesp;
+      delete [] edgesp;
+      delete [] edgetimesizep;
+    delete [] res;
+
+    return edges;
+
+
+}
+
+size_t TGraph::deactived_point(uint t) {
+    return deactived_interval(t,t+1);
+}
+
+size_t TGraph::deactived_interval(uint ts, uint te) {
+    size_t edges=0;
+
+    uint *res = new uint [BUFFER];
+
+    uint *timep = new uint[BUFFER];
+      uint *changesp = new uint[BUFFER];
+      uint *edgesp = new uint[BUFFER];
+      uint *edgetimesizep = new uint[BUFFER];
+
+    for(uint v=0; v < nodes; v++) {
+      if (v>=nodes || tgraph[v].neighbors == 0) continue;
+
+      cc->Decompress(tgraph[v].cchanges, changesp, tgraph[v].neighbors);
+      cc->Decompress(tgraph[v].cedges, edgesp, tgraph[v].neighbors);
+      decodediff(edgesp, tgraph[v].neighbors);
+
+      cc->Decompress(tgraph[v].cedgetimesize, edgetimesizep, tgraph[v].neighbors);
+
+      uint i=0;
+
+      for(uint j=0; j < tgraph[v].neighbors; j++) {
+          decodetime(v, j, edgetimesizep, changesp, timep);
+
+          uint *low = lower_bound(timep, timep+changesp[j], ts);
+          uint *up = lower_bound(timep, timep+changesp[j], te);
+
+          if ( low < up && (low-timep)%2 == 1) res[++i] = edgesp[j];
+      }
+
+      *res = i;
+      edges += *res;
+    }
+
+    delete [] timep;
+      delete [] changesp;
+      delete [] edgesp;
+      delete [] edgetimesizep;
+    delete [] res;
+
+    return edges;
+}
