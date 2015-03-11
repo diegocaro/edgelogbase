@@ -816,7 +816,7 @@ size_t TGraph::actived_interval(uint ts, uint te) {
           uint *low = lower_bound(timep, timep+changesp[j], ts);
           uint *up = lower_bound(timep, timep+changesp[j], te);
 
-          if ( low < up && (low-timep)%2 == 0) res[++i] = edgesp[j];
+          if ( low < up && ((low-timep)%2 == 0 || (up-low) >= 2)) res[++i] = edgesp[j];
       }
 
       *res = i;
@@ -865,7 +865,7 @@ size_t TGraph::deactived_interval(uint ts, uint te) {
           uint *low = lower_bound(timep, timep+changesp[j], ts);
           uint *up = lower_bound(timep, timep+changesp[j], te);
 
-          if ( low < up && (low-timep)%2 == 1) res[++i] = edgesp[j];
+          if ( low < up && ((low-timep)%2 == 1 || (up-low) >= 2)) res[++i] = edgesp[j];
       }
 
       *res = i;
