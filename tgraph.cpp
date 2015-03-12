@@ -173,6 +173,8 @@ void TGraph::create(TGraphReader &tgr) {
 			tovector(it->second, readset);
                         encodediff(readset);
 
+                        assert(readset.size() > 0 && "Error: Time list is empty!");
+
 			// increase readset size to an upper multiply of blocksize
 			readset.reserve(cc->block_size()*(readset.size()/cc->block_size()+2));
                         csize = cc->Compress(readset.data(), ccedgebuffer, readset.size());
