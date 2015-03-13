@@ -173,6 +173,10 @@ void TGraph::create(TGraphReader &tgr) {
 			tovector(it->second, readset);
                         encodediff(readset);
 
+			if (readset.size() == 0) {
+				printf("edge %u %u is empty\n",i,it->first);
+continue;
+}
                         assert(readset.size() > 0 && "Error: Time list is empty!");
 
 			// increase readset size to an upper multiply of blocksize

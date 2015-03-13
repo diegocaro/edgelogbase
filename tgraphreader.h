@@ -37,7 +37,7 @@ public:
 
             // por si el datasets tiene intervalos de la forma I1 = [a,b) I2 = [b, c)
             // Guardamos solo el intervalo [a,c) ... (solo pasa si est‡ corrupto el dataset)
-            if (info.second == false) {
+            if (info.second == false && tgraph[u][v].size()%2 == 1) {
                 tgraph[u][v].erase(info.first);
             }
 
